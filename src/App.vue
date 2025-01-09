@@ -1,87 +1,67 @@
 <!-- Html -->
 <template>
-    <div class="container d-flex justify-content-center align-items-center">
-        <div class="card mt-3 col-6">
-            <div class="card-body">
-                <h1 class="text-center">Task List</h1>
-                <div
-                    class="d-flex flex-column flex-sm-row justify-content-between mt-3 mt-sm-5"
+    <div class="container">
+        <div class="task-card">
+            <h1 class="title">Task List</h1>
+            <div class="input-section">
+                <input
+                    type="text"
+                    class="task-input"
+                    placeholder="Add a new task..."
+                    v-model="newTask"
+                    @keyup.enter="addTask"
+                    :disabled="tasks.length > 4"
+                />
+                <button
+                    class="btn add-btn"
+                    @click="addTask"
+                    v-if="tasks.length <= 4"
                 >
-                    <div class="col-sm-9">
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Add a new task..."
-                            v-model="newTask"
-                            @keyup.enter="addTask"
-                            :disabled="tasks.length > 4"
-                        />
-                    </div>
-                    <div class="mt-3 mt-sm-0">
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            @click="addTask"
-                            v-if="tasks.length <= 4"
-                        >
-                            Add
-                        </button>
-                        <p v-else class="message">List completed</p>
-                    </div>
-                </div>
-                <div class="mt-3 mt-sm-5">
-                    <div
-                        class="card item-card mt-2"
-                        v-for="(task, index) in tasks"
-                        :key="index"
-                    >
-                        <div class="card-body">
-                            <div class="card-items">
-                                <!-- Edit Mode -->
-                                <div v-if="task.isEditing">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        v-model="task.updatedContent"
-                                        placeholder="Edit task content..."
-                                    />
-                                    <button
-                                        type="button"
-                                        class="btn btn-success"
-                                        @click="updateTask(task.id, index)"
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary"
-                                        @click="cancelEdit(index)"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-
-                                <!-- Display Mode -->
-                                <div v-else>
-                                    <p class="fw-semibold">
-                                        {{ task.content }}
-                                    </p>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        @click="editTask(index)"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger"
-                                        @click="deleteTask(task.id, index)"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
+                    Add
+                </button>
+                <p v-else class="error-message">Maximum tasks reached</p>
+            </div>
+            <div class="task-list">
+                <div
+                    class="task-item"
+                    v-for="(task, index) in tasks"
+                    :key="task.id"
+                >
+                    <div class="task-content">
+                        <div v-if="task.isEditing">
+                            <input
+                                type="text"
+                                class="task-edit-input"
+                                v-model="task.updatedContent"
+                                placeholder="Edit task..."
+                            />
+                            <button
+                                class="btn save-btn"
+                                @click="updateTask(task.id, index)"
+                            >
+                                Save
+                            </button>
+                            <button
+                                class="btn cancel-btn"
+                                @click="cancelEdit(index)"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                        <div v-else>
+                            <p class="task-text">{{ task.content }}</p>
+                            <button
+                                class="btn edit-btn"
+                                @click="editTask(index)"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                class="btn delete-btn"
+                                @click="deleteTask(task.id, index)"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -244,43 +224,156 @@ export default {
 </script>
 <!-- Css -->
 <style scoped>
-.card-body h1 {
-    color: #a813ff;
+/* General Styles */
+body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
-.btn-primary {
-    background-color: #a813ff;
-    border: transparent;
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.btn-danger {
-    background-color: #5f8dba;
-    border: transparent;
+/* Task Card */
+.task-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    padding: 20px 30px;
 }
 
-.btn-warning {
-    background-color: #952b95;
-    color: #fff;
-    border: transparent;
+.title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #6a11cb;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-.message {
-    color: green;
+/* Input Section */
+.input-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.task-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #6a11cb;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+.task-input:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
     font-weight: bold;
 }
 
-.item-card {
+/* Task List */
+.task-list {
     display: flex;
-    align-items: center;
-    height: 60px;
-    background-color: #440c7e;
-    color: #fff;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.card-items {
+.task-item {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px 15px;
     display: flex;
-    justify-content: space-evenly;
-    flex-direction: row;
-    width: 300px;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.task-text {
+    font-size: 1rem;
+    color: #333;
+    flex: 1;
+}
+
+.task-edit-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Buttons */
+.btn {
+    border: none;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-btn {
+    background: #6a11cb;
+}
+
+.add-btn:hover {
+    background: #2575fc;
+}
+
+.edit-btn {
+    background: #f0ad4e;
+}
+
+.edit-btn:hover {
+    background: #ec971f;
+}
+
+.save-btn {
+    background: #5cb85c;
+}
+
+.save-btn:hover {
+    background: #4cae4c;
+}
+
+.cancel-btn {
+    background: #d9534f;
+}
+
+.cancel-btn:hover {
+    background: #c9302c;
+}
+
+.delete-btn {
+    background: #d9534f;
+}
+
+.delete-btn:hover {
+    background: #c9302c;
 }
 </style>
